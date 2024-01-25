@@ -1,27 +1,26 @@
-// import { GithubRepositoryInterface } from "../../domain/interfaces/repository";
-// import { GithubRepositoryEntity } from "../../domain/entities/repository";
-// import axios from "axios";
+// import { VideoManagementInterface } from "../../domain/interfaces/repository";
+import { Video } from "../../domain/entities/video";
+import { Sequelize, QueryTypes } from "sequelize";
 
-// export class DataSourceRepository implements GithubRepositoryInterface {
-// 	async getRepositories(
-// 		username: string,
-// 		page?: number,
-// 		per_page?: number,
-// 		mostPopularFirst?: boolean
-// 	): Promise<GithubRepositoryEntity[] | Error> {
-// 		try {
-// 			const response = await axios.get(
-// 				`https://api.github.com/users/${username}/repos?page=${page}&per_page=${per_page}${
-// 					mostPopularFirst ? "&sort=stargazers" : ""
-// 				}`
-// 			);
+export class DataSourceRepository {
+  private pool: Sequelize;
 
-// 			const repositories = response.data;
+  constructor(pool: Sequelize) {
+    this.pool = pool;
+  }
 
-// 			return repositories;
-// 		} catch (error) {
-// 			console.error("Error fetching repositories:", error);
-// 			throw new Error("Failed to fetch repositories");
-// 		}
-// 	}
-// }
+  async getPublicVideos(): Promise<Video[] | Error> {
+    try {
+      const result = await this.pool.query(
+        "SELECT * FROM videos WHERE is_public = true",
+        { type: QueryTypes.SELECT }
+      );
+      // eslint-disable-next-line no-console
+      console.log(result);
+
+      return new Error("Failed to fetch public videos");
+    } catch (error) {
+      throw new Error("Failed to fetch public videos");
+    }
+  }
+}

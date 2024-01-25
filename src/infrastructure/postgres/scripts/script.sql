@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS videos (
@@ -29,11 +29,11 @@ CREATE TABLE IF NOT EXISTS comments (
 
 CREATE TABLE IF NOT EXISTS likes (
     like_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
-    video_id uuid REFERENCES videos(video_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    video_id UUID REFERENCES videos(video_id) ON DELETE CASCADE,
+    is_like BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 CREATE OR REPLACE FUNCTION check_registered_user()
 RETURNS TRIGGER AS $$
