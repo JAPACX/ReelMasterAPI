@@ -1,4 +1,4 @@
-import { Video, User } from "../entities/repository";
+import { Video } from "../entities/video";
 
 export interface GithubRepositoryInterface {
   getRepositories(

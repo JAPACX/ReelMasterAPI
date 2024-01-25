@@ -6,3 +6,7 @@ https://blog.logrocket.com/organizing-express-js-project-structure-better-produc
 https://blog.logrocket.com/graphql-vs-rest-api-why-you-shouldnt-use-graphql/
 
 https://eslint.org/docs/latest/rules/
+
+prisma
+npx prisma db pull -get info from database
+npx prisma generate
