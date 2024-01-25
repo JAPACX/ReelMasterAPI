@@ -1,23 +1,23 @@
 export class GithubRepositoryEntity {
-  constructor(
+	constructor(
     public id?: number,
     public name?: string,
     public fullName?: string,
     public owner?: Owner,
     public htmlUrl?: string
-  ) {}
+	) {}
 }
 
 export class License {
-  constructor(
+	constructor(
     public key?: string,
     public name?: string,
     public spdxId?: string,
     public url?: string,
     public nodeId?: string
-  ) {}
+	) {}
 }
 
 export class Owner {
-  constructor(public login?: string, public id?: number) {}
+	constructor(public login?: string, public id?: number) {}
 }
