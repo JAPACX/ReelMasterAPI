@@ -1,4 +1,4 @@
-import { GithubRepositoryEntity } from "../entities/repository";
+import { Video, User } from "../entities/repository";
 
 export interface GithubRepositoryInterface {
   getRepositories(
@@ -6,5 +6,5 @@ export interface GithubRepositoryInterface {
     page?: number,
     per_page?: number,
     mostPopularFirst?: boolean
-  ): Promise<GithubRepositoryEntity[] | Error>;
+  ): Promise<Video[] | Error>;
 }
