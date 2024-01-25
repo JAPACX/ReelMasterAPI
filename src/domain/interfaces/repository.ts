@@ -1,7 +1,7 @@
 import { Video } from "../entities/video";
 
 export interface VideoManagementInterface {
-  getPublicVideos(): Promise<Video[] | Error>;
+  getListVideos(): Promise<Video[] | Error>;
 
   getUserVideos(userId: string): Promise<Video[] | Error>;
 
@@ -11,11 +11,12 @@ export interface VideoManagementInterface {
     username: string,
     password: string,
     email: string
-  ): Promise<void | Error>;
+  ): Promise<boolean | Error>;
 
   loginUser(username: string, password: string): Promise<string | Error>;
 
   uploadVideo(
+    userId: string,
     title: string,
     description: string,
     credits: string,
@@ -23,13 +24,17 @@ export interface VideoManagementInterface {
     videoFile: File
   ): Promise<Video[] | Error>;
 
-  addCommentToVideo(videoId: string, content: string): Promise<boolean | Error>;
+  addCommentToVideo(
+    userId: string,
+    videoId: string,
+    content: string
+  ): Promise<boolean | Error>;
 
-  likeOrUnlikeVideo(videoId: string): Promise<boolean | Error>;
+  likeOrUnlikeVideo(userId: string, videoId: string): Promise<boolean | Error>;
 
   deleteUser(userId: string): Promise<boolean | Error>;
 
-  deleteVideo(videoId: string): Promise<boolean | Error>;
+  deleteVideo(userId: string, videoId: string): Promise<boolean | Error>;
 
-  deleteComment(commentId: string): Promise<boolean | Error>;
+  deleteComment(userId: string, commentId: string): Promise<boolean | Error>;
 }

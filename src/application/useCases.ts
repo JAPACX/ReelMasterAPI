@@ -10,6 +10,18 @@ export class VideoManagementUseCases {
     return new VideoManagementUseCases(videoRepository);
   }
 
+  async getListVideos(): Promise<Video[] | Error> {
+    return this.videoRepository.getListVideos();
+  }
+
+  async getUserVideos(userId: string): Promise<Video[] | Error> {
+    if (!userId) {
+      return new Error("User ID is required");
+    }
+
+    return this.videoRepository.getUserVideos(userId);
+  }
+
   async registerUser(
     name: string,
     last_name: string,
@@ -44,6 +56,7 @@ export class VideoManagementUseCases {
   }
 
   async uploadVideo(
+    userId: string,
     title: string,
     description: string,
     credits: string,
@@ -55,6 +68,7 @@ export class VideoManagementUseCases {
     }
 
     await this.videoRepository.uploadVideo(
+      userId,
       title,
       description,
       credits,
@@ -65,19 +79,8 @@ export class VideoManagementUseCases {
     return true;
   }
 
-  async getPublicVideos(): Promise<Video[] | Error> {
-    return this.videoRepository.getPublicVideos();
-  }
-
-  async getUserVideos(userId: string): Promise<Video[] | Error> {
-    if (!userId) {
-      return new Error("User ID is required");
-    }
-
-    return this.videoRepository.getUserVideos(userId);
-  }
-
   async addCommentToVideo(
+    userId: string,
     videoId: string,
     content: string
   ): Promise<boolean | Error> {
@@ -85,16 +88,23 @@ export class VideoManagementUseCases {
       return new Error("Video ID and comment content are required");
     }
 
-    await this.videoRepository.addCommentToVideo(videoId, content);
+    if (content.length > 500) {
+      return new Error("Comment content is too long");
+    }
+
+    await this.videoRepository.addCommentToVideo(userId, videoId, content);
     return true;
   }
 
-  async likeOrUnlikeVideo(videoId: string): Promise<boolean | Error> {
+  async likeOrUnlikeVideo(
+    userId: string,
+    videoId: string
+  ): Promise<boolean | Error> {
     if (!videoId) {
       return new Error("Video ID is required");
     }
 
-    await this.videoRepository.likeOrUnlikeVideo(videoId);
+    await this.videoRepository.likeOrUnlikeVideo(userId, videoId);
     return true;
   }
 
@@ -107,21 +117,24 @@ export class VideoManagementUseCases {
     return true;
   }
 
-  async deleteVideo(videoId: string): Promise<boolean | Error> {
+  async deleteVideo(userId: string, videoId: string): Promise<boolean | Error> {
     if (!videoId) {
       return new Error("Video ID is required");
     }
 
-    await this.videoRepository.deleteVideo(videoId);
+    await this.videoRepository.deleteVideo(userId, videoId);
     return true;
   }
 
-  async deleteComment(commentId: string): Promise<boolean | Error> {
+  async deleteComment(
+    userId: string,
+    commentId: string
+  ): Promise<boolean | Error> {
     if (!commentId) {
       return new Error("Comment ID is required");
     }
 
-    await this.videoRepository.deleteComment(commentId);
+    await this.videoRepository.deleteComment(userId, commentId);
     return true;
   }
 }

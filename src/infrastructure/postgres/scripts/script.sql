@@ -63,6 +63,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION to_invert_like()
+  RETURNS TRIGGER AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM likes
+    WHERE user_id = NEW.user_id AND video_id = NEW.video_id
+  ) THEN
+    UPDATE likes
+    SET is_like = NOT NEW.is_like
+    WHERE user_id = NEW.user_id AND video_id = NEW.video_id;
+    RETURN NULL;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'before_insert_like_trigger') THEN
+            EXECUTE 'CREATE TRIGGER before_insert_like_trigger BEFORE INSERT ON videos FOR EACH ROW EXECUTE FUNCTION to_invert_like()';
+        END IF;
+    END
+$$;
+
 DO
 $$
     BEGIN

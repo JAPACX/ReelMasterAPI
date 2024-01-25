@@ -8,7 +8,8 @@ export class Video {
     public is_public?: boolean,
     public user_id?: string,
     public comments?: Comment[],
-    public likes?: Like[]
+    public likes?: Like[],
+    public url?: string
   ) {}
 }
 
