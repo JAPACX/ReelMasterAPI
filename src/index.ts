@@ -6,12 +6,14 @@ import { VideoManagementUseCases } from "./application/useCases";
 import { PostgresRepository } from "./infrastructure/repositories/postgresRepository";
 import { pool } from "./infrastructure/postgres/config";
 import { router } from "./infrastructure/api/routes/routes";
+import swaggerUi from "swagger-ui-express";
+import swaggerOutput from "./infrastructure/swagger_output.json";
 
 dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-// dependencies injection
+// Dependencies injection
 const pr = new PostgresRepository(pool);
 const useCases = VideoManagementUseCases.create(pr);
 
@@ -31,8 +33,11 @@ app.use((req: Request, res, next) => {
 // Routes
 app.use("", router);
 
+// Swagger setup
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOutput));
+
 app.listen(port, async () => {
   await createDatabase(pool);
   // eslint-disable-next-line no-console
-  console.log(`[server]: Server is running at http://localhost:${port}}`);
+  console.log(`[server]: Server is running at http://localhost:${port}`);
 });
