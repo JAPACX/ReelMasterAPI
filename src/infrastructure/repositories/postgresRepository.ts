@@ -1,8 +1,9 @@
 import { VideoManagementInterface } from "../../domain/interfaces/repository";
-import { Video } from "../../domain/entities/video";
+import { Video } from "../../domain/entities/entities";
 import { Sequelize, QueryTypes } from "sequelize";
+import bcrypt from "bcryptjs";
 
-export class DataSourceRepository implements VideoManagementInterface {
+export class PostgresRepository implements VideoManagementInterface {
   private pool: Sequelize;
 
   constructor(pool: Sequelize) {
@@ -42,29 +43,48 @@ export class DataSourceRepository implements VideoManagementInterface {
     email: string
   ): Promise<boolean | Error> {
     try {
+      const salt = await bcrypt.genSalt(10);
+
+      const hashedPassword = await bcrypt.hash(password, salt);
+
       await this.pool.query(
         `INSERT INTO users (name, last_name, username, password_hash, email)
-       VALUES ('${name}', '${last_name}', '${username}', '${password}', '${email}');`,
+        VALUES ('${name}', '${last_name}', '${username}', '${hashedPassword}', '${email}');`,
         { type: QueryTypes.INSERT }
       );
+
       return true;
     } catch (error) {
-      throw new Error("Failed to fetch public videos");
+      throw new Error("User already exists");
     }
   }
-  // no va aqui
-  async loginUser(username: string, password: string): Promise<string | Error> {
+  async loginUser(
+    username: string,
+    password: string
+  ): Promise<boolean | Error> {
     try {
-      // eslint-disable-next-line no-console
-      console.log(username, password);
+      const result = await this.pool.query(
+        `SELECT password_hash FROM users WHERE username = '${username}';`,
+        { type: QueryTypes.SELECT }
+      );
 
-      const token = "dummy-token";
-      return token;
+      if (result.length === 1) {
+        const storedHash = result[0]["password_hash"];
+
+        const passwordMatch = await bcrypt.compare(password, storedHash);
+        if (passwordMatch) {
+          return true;
+        } else {
+          throw new Error("Incorrect password");
+        }
+      } else {
+        throw new Error("User not found");
+      }
     } catch (error) {
-      throw new Error("Failed to login user");
+      throw new Error("Failed to login");
     }
   }
-  // no va aqui
+
   async uploadVideo(
     userId: string,
     title: string,
@@ -84,8 +104,6 @@ export class DataSourceRepository implements VideoManagementInterface {
         comments: [],
         likes: [],
       };
-      // eslint-disable-next-line no-console
-      console.log(videoFile);
 
       return [uploadedVideo];
     } catch (error) {
@@ -115,9 +133,11 @@ export class DataSourceRepository implements VideoManagementInterface {
     videoId: string
   ): Promise<boolean | Error> {
     try {
-      // eslint-disable-next-line no-console
-      console.log(userId, videoId);
-
+      await this.pool.query(
+        `INSERT INTO likes(user_id, video_id) 
+       VALUES ('${userId}', '${videoId}');`,
+        { type: QueryTypes.INSERT }
+      );
       return true;
     } catch (error) {
       throw new Error("Failed to like/unlike video");
@@ -126,8 +146,9 @@ export class DataSourceRepository implements VideoManagementInterface {
 
   async deleteUser(userId: string): Promise<boolean | Error> {
     try {
-      // eslint-disable-next-line no-console
-      console.log(userId);
+      await this.pool.query(`DELETE FROM users WHERE user_id = '${userId}';`, {
+        type: QueryTypes.DELETE,
+      });
       return true;
     } catch (error) {
       throw new Error("Failed to delete user");
@@ -136,8 +157,12 @@ export class DataSourceRepository implements VideoManagementInterface {
 
   async deleteVideo(userId: string, videoId: string): Promise<boolean | Error> {
     try {
-      // eslint-disable-next-line no-console
-      console.log(userId, videoId);
+      await this.pool.query(
+        `DELETE FROM videos WHERE user_id = '${userId}' AND video_id = '${videoId}';`,
+        {
+          type: QueryTypes.DELETE,
+        }
+      );
       return true;
     } catch (error) {
       throw new Error("Failed to delete video");
@@ -149,8 +174,12 @@ export class DataSourceRepository implements VideoManagementInterface {
     commentId: string
   ): Promise<boolean | Error> {
     try {
-      // eslint-disable-next-line no-console
-      console.log(userId, commentId);
+      await this.pool.query(
+        `DELETE FROM comments WHERE user_id = '${userId}' AND comment_id = '${commentId}';`,
+        {
+          type: QueryTypes.DELETE,
+        }
+      );
       return true;
     } catch (error) {
       throw new Error("Failed to delete comment");

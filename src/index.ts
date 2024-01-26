@@ -1,19 +1,38 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, Request } from "express";
+import bodyParser from "body-parser";
 import dotenv from "dotenv";
-// import { createDatabase } from "./infrastructure/postgres/init";
-import { DataSourceRepository } from "./infrastructure/repositories/postgresRepository";
+import { createDatabase } from "./infrastructure/postgres/init";
+import { VideoManagementUseCases } from "./application/useCases";
+import { PostgresRepository } from "./infrastructure/repositories/postgresRepository";
 import { pool } from "./infrastructure/postgres/config";
-const example = new DataSourceRepository(pool);
+import { router } from "./infrastructure/api/routes/routes";
+
 dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server new");
+// dependencies injection
+const pr = new PostgresRepository(pool);
+const useCases = VideoManagementUseCases.create(pr);
+
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+
+// Middleware for useCases
+app.use((req: Request, res, next) => {
+  req["useCases"] = useCases;
+  next();
 });
+
+// Routes
+app.use("", router);
+
 app.listen(port, async () => {
-  // await createDatabase(pool);
-  example.registerUser("name", "last_name", "username", "password", "email");
+  await createDatabase(pool);
   // eslint-disable-next-line no-console
   console.log(`[server]: Server is running at http://localhost:${port}}`);
 });

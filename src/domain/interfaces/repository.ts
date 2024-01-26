@@ -1,4 +1,4 @@
-import { Video } from "../entities/video";
+import { Video } from "../entities/entities";
 
 export interface VideoManagementInterface {
   getListVideos(): Promise<Video[] | Error>;
@@ -13,7 +13,7 @@ export interface VideoManagementInterface {
     email: string
   ): Promise<boolean | Error>;
 
-  loginUser(username: string, password: string): Promise<string | Error>;
+  loginUser(username: string, password: string): Promise<boolean | Error>;
 
   uploadVideo(
     userId: string,
