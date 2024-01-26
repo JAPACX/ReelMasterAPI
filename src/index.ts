@@ -1,4 +1,4 @@
-import express, { Express, Request } from "express";
+import express, { Express } from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import { createDatabase } from "./infrastructure/postgres/init";
@@ -8,6 +8,7 @@ import { pool } from "./infrastructure/postgres/config";
 import { router } from "./infrastructure/api/routes/routes";
 import swaggerUi from "swagger-ui-express";
 import swaggerOutput from "./infrastructure/swagger_output.json";
+import { VideoManagementRequest } from "./infrastructure/api/controllers/controllers";
 
 dotenv.config();
 const app: Express = express();
@@ -25,8 +26,8 @@ app.use(
 );
 
 // Middleware for useCases
-app.use((req: Request, res, next) => {
-  req["useCases"] = useCases;
+app.use((req: VideoManagementRequest, res, next) => {
+  req.useCases = useCases;
   next();
 });
 
@@ -34,7 +35,7 @@ app.use((req: Request, res, next) => {
 app.use("", router);
 
 // Swagger setup
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOutput));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
 app.listen(port, async () => {
   await createDatabase(pool);
