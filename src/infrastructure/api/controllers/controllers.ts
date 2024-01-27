@@ -5,6 +5,22 @@ export interface VideoManagementRequest extends Request {
   useCases: VideoManagementUseCases;
 }
 
+export const getListVideos: Handler = async (
+  req: VideoManagementRequest,
+  res
+) => {
+  const useCases = req.useCases;
+  try {
+    res.send(await useCases.getListVideos());
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send({ error: error.message });
+    } else {
+      res.status(500).send({ error: "An unexpected error occurred" });
+    }
+  }
+};
+
 export const getUserVideos: Handler = async (
   req: VideoManagementRequest,
   res
@@ -13,11 +29,7 @@ export const getUserVideos: Handler = async (
   const { userId } = req.params;
 
   try {
-    if (userId) {
-      res.send(await useCases.getUserVideos(userId));
-    } else {
-      res.send(await useCases.getListVideos());
-    }
+    res.send(await useCases.getUserVideos(userId));
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send({ error: error.message });
