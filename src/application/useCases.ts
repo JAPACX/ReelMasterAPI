@@ -17,7 +17,7 @@ export class VideoManagementUseCases {
 
   async getUserVideos(userId: string): Promise<Video[] | Error> {
     if (!userId) {
-      return new Error("User ID is required");
+      throw new Error("User ID is required");
     }
 
     return this.videoRepository.getUserVideos(userId);
@@ -31,7 +31,7 @@ export class VideoManagementUseCases {
     email: string
   ): Promise<boolean | Error> {
     if (!name || !last_name || !username || !password || !email) {
-      return new Error("All fields are required");
+      throw new Error("All fields are required!");
     }
 
     if (
@@ -40,15 +40,15 @@ export class VideoManagementUseCases {
       username.length < 3 ||
       email.length < 3
     ) {
-      return new Error("All fields must have at least 3 characters");
+      throw new Error("All fields must have at least 3 characters");
     }
 
-    if (password.length < 8) {
-      return new Error("Password must have at least 8 characters");
+    if (password.length > 15) {
+      throw new Error("Password cannot exceed 15 characters");
     }
 
     if (username.includes(" ")) {
-      return new Error("Username cannot contain spaces");
+      throw new Error("Username cannot contain spaces");
     }
 
     const passwordValidation = validator.isStrongPassword(password, {
@@ -59,17 +59,17 @@ export class VideoManagementUseCases {
     });
 
     if (!passwordValidation) {
-      return new Error(
-        "Password must be 5 to 10 characters long and contain at least one lowercase letter, one uppercase letter, and one number"
+      throw new Error(
+        "Password must be 5 to 15 characters long and contain at least one lowercase letter, one uppercase letter, and one number"
       );
     }
 
     if (!validator.isAlphanumeric(username)) {
-      return new Error("Username must only contain letters and numbers");
+      throw new Error("Username must only contain letters and numbers");
     }
 
     if (!validator.isEmail(email) || email.length > 30) {
-      return new Error("Invalid email format or length exceeds 30 characters");
+      throw new Error("Invalid email format or length exceeds 30 characters");
     }
 
     await this.videoRepository.registerUser(
@@ -85,25 +85,17 @@ export class VideoManagementUseCases {
 
   async loginUser(username: string, password: string): Promise<string | Error> {
     if (!username || !password) {
-      return new Error("Username and password are required");
+      throw new Error("Username and password are required");
     }
 
-    const passwordValidation = validator.isStrongPassword(password, {
-      minLength: 5,
-      minUppercase: 1,
-      minNumbers: 1,
-      minSymbols: 0,
-    });
-
-    if (!passwordValidation) {
-      return new Error(
-        "Password must be 5 to 10 characters long and contain at least one lowercase letter, one uppercase letter, and one number"
-      );
+    if (username.length < 3 || password.length < 3) {
+      throw new Error("All fields must have at least 3 characters");
     }
 
-    if (!validator.isAlphanumeric(username)) {
-      return new Error("Username must only contain letters and numbers");
+    if (username.includes(" ")) {
+      throw new Error("Username cannot contain spaces");
     }
+
     const isValidUser = await this.videoRepository.loginUser(
       username,
       password
@@ -112,7 +104,7 @@ export class VideoManagementUseCases {
     if (isValidUser) {
       return "token aca";
     } else {
-      return new Error("Invalid username or password");
+      throw new Error("Invalid username or password");
     }
   }
 
@@ -125,7 +117,7 @@ export class VideoManagementUseCases {
     videoFile: File
   ): Promise<boolean | Error> {
     if (!title || !videoFile) {
-      return new Error("Title and video file are required");
+      throw new Error("Title and video file are required");
     }
 
     await this.videoRepository.uploadVideo(
@@ -146,11 +138,11 @@ export class VideoManagementUseCases {
     content: string
   ): Promise<boolean | Error> {
     if (!videoId || !content) {
-      return new Error("Video ID and comment content are required");
+      throw new Error("Video ID and comment content are required");
     }
 
     if (content.length > 500) {
-      return new Error("Comment content is too long");
+      throw new Error("Comment content is too long");
     }
 
     await this.videoRepository.addCommentToVideo(userId, videoId, content);
@@ -180,7 +172,7 @@ export class VideoManagementUseCases {
 
   async deleteVideo(userId: string, videoId: string): Promise<boolean | Error> {
     if (!videoId) {
-      return new Error("Video ID is required");
+      throw new Error("Video ID is required");
     }
 
     await this.videoRepository.deleteVideo(userId, videoId);
@@ -192,7 +184,7 @@ export class VideoManagementUseCases {
     commentId: string
   ): Promise<boolean | Error> {
     if (!commentId) {
-      return new Error("Comment ID is required");
+      throw new Error("Comment ID is required");
     }
 
     await this.videoRepository.deleteComment(userId, commentId);

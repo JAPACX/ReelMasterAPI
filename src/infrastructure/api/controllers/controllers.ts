@@ -13,11 +13,7 @@ export const getListVideos: Handler = async (
   try {
     res.send(await useCases.getListVideos());
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send({ error: error.message });
-    } else {
-      res.status(500).send({ error: "An unexpected error occurred" });
-    }
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -31,11 +27,7 @@ export const getUserVideos: Handler = async (
   try {
     res.send(await useCases.getUserVideos(userId));
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send({ error: error.message });
-    } else {
-      res.status(500).send({ error: "An unexpected error occurred" });
-    }
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -43,15 +35,12 @@ export const loginUser: Handler = async (req: VideoManagementRequest, res) => {
   const useCases = req.useCases;
 
   const { username, password } = req.body;
+
   try {
-    const token = await useCases.loginUser(username, password);
-    res.send({ token });
+    await useCases.loginUser(username, password);
+    res.send({ success: true });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send({ error: error.message });
-    } else {
-      res.status(500).send({ error: "An unexpected error occurred" });
-    }
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -63,20 +52,20 @@ export const registerUser: Handler = async (
 
   const { name, last_name, username, password, email } = req.body;
   try {
-    const success = await useCases.registerUser(
+    const result = await useCases.registerUser(
       name,
       last_name,
       username,
       password,
       email
     );
-    res.send({ success });
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send({ error: error.message });
+    if (result instanceof Error) {
+      res.status(500).send({ error: result.message });
     } else {
-      res.status(500).send({ error: "An unexpected error occurred" });
+      res.send({ success: true });
     }
+  } catch (error) {
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -91,11 +80,7 @@ export const deleteUserVideos: Handler = async (
     const success = await useCases.deleteVideo(userId, videoId);
     res.send({ success });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send({ error: error.message });
-    } else {
-      res.status(500).send({ error: "An unexpected error occurred" });
-    }
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -111,11 +96,7 @@ export const addCommentToVideo: Handler = async (
     const success = await useCases.addCommentToVideo(userId, videoId, content);
     res.send({ success });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send({ error: error.message });
-    } else {
-      res.status(500).send({ error: "An unexpected error occurred" });
-    }
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -130,10 +111,6 @@ export const likeOrUnlikeVideo: Handler = async (
     const success = await useCases.likeOrUnlikeVideo(userId, videoId);
     res.send({ success });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send({ error: error.message });
-    } else {
-      res.status(500).send({ error: "An unexpected error occurred" });
-    }
+    res.status(500).send({ error: error.message });
   }
 };

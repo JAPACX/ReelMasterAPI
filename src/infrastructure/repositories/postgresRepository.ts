@@ -63,15 +63,19 @@ export class PostgresRepository implements VideoManagementInterface {
     password: string
   ): Promise<boolean | Error> {
     try {
-      const result = await this.pool.query(
-        `SELECT password_hash FROM users WHERE username = '${username}';`,
-        { type: QueryTypes.SELECT }
+      const userResult = await this.pool.query(
+        `SELECT password_hash FROM users WHERE username = ?;`,
+        {
+          replacements: [username],
+          type: QueryTypes.SELECT,
+        }
       );
 
-      if (result.length === 1) {
-        const storedHash = result[0]["password_hash"];
+      if (userResult.length === 1) {
+        const storedHash = userResult[0]["password_hash"];
 
         const passwordMatch = await bcrypt.compare(password, storedHash);
+
         if (passwordMatch) {
           return true;
         } else {
@@ -81,7 +85,7 @@ export class PostgresRepository implements VideoManagementInterface {
         throw new Error("User not found");
       }
     } catch (error) {
-      throw new Error("Failed to login");
+      throw new Error(`Failed to login: ${error.message}`);
     }
   }
 
