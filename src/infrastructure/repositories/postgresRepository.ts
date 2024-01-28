@@ -10,7 +10,7 @@ export class PostgresRepository implements VideoManagementInterface {
     this.pool = pool;
   }
 
-  async getListVideos(): Promise<Video[] | Error> {
+  async getPublicVideos(): Promise<Video[] | Error> {
     try {
       const result = await this.pool.query(
         "SELECT * FROM videos WHERE is_public = true",
@@ -58,13 +58,10 @@ export class PostgresRepository implements VideoManagementInterface {
       throw new Error("User already exists");
     }
   }
-  async loginUser(
-    username: string,
-    password: string
-  ): Promise<boolean | Error> {
+  async loginUser(username: string, password: string): Promise<string | Error> {
     try {
       const userResult = await this.pool.query(
-        `SELECT password_hash FROM users WHERE username = ?;`,
+        `SELECT user_id, password_hash FROM users WHERE username = ?;`,
         {
           replacements: [username],
           type: QueryTypes.SELECT,
@@ -72,12 +69,13 @@ export class PostgresRepository implements VideoManagementInterface {
       );
 
       if (userResult.length === 1) {
-        const storedHash = userResult[0]["password_hash"];
+        const user_id = userResult[0]["user_id"];
+        const password_hash = userResult[0]["password_hash"];
 
-        const passwordMatch = await bcrypt.compare(password, storedHash);
+        const passwordMatch = await bcrypt.compare(password, password_hash);
 
         if (passwordMatch) {
-          return true;
+          return user_id;
         } else {
           throw new Error("Incorrect password");
         }
@@ -94,24 +92,23 @@ export class PostgresRepository implements VideoManagementInterface {
     title: string,
     description: string,
     credits: string,
-    is_public: boolean,
-    videoFile: File
-  ): Promise<Video[] | Error> {
+    isPublic: boolean
+  ): Promise<string | Error> {
     try {
-      const uploadedVideo: Video = {
-        video_id: "dummy-id",
-        title,
-        description,
-        credits,
-        is_public,
-        user_id: "dummy-user-id",
-        comments: [],
-        likes: [],
-      };
+      const result = await this.pool.query(
+        `INSERT INTO videos (user_id, title, description, credits, is_public, url)
+         VALUES ('${userId}', '${title}', '${description}', '${credits}', '${isPublic}') RETURNING video_id;`,
+        { type: QueryTypes.INSERT }
+      );
 
-      return [uploadedVideo];
+      if (result) {
+        const videoId = result[0]["video_id"];
+        return videoId;
+      } else {
+        throw new Error("Failed to upload video");
+      }
     } catch (error) {
-      throw new Error("Failed to upload video");
+      throw new Error(`Failed to upload video: ${error.message}`);
     }
   }
 
@@ -161,15 +158,18 @@ export class PostgresRepository implements VideoManagementInterface {
 
   async deleteVideo(userId: string, videoId: string): Promise<boolean | Error> {
     try {
-      await this.pool.query(
-        `DELETE FROM videos WHERE user_id = '${userId}' AND video_id = '${videoId}';`,
-        {
-          type: QueryTypes.DELETE,
-        }
+      const result = await this.pool.query(
+        `DELETE FROM videos WHERE user_id = '${userId}' AND video_id = '${videoId}' RETURNING *;`,
+        { type: QueryTypes.DELETE }
       );
+
+      if (!result[1] || result[1].length === 0) {
+        throw new Error("Video does not exist or you are not the owner");
+      }
+
       return true;
     } catch (error) {
-      throw new Error("Failed to delete video");
+      throw new Error(`Failed to delete video: ${error.message}`);
     }
   }
 
@@ -178,15 +178,18 @@ export class PostgresRepository implements VideoManagementInterface {
     commentId: string
   ): Promise<boolean | Error> {
     try {
-      await this.pool.query(
-        `DELETE FROM comments WHERE user_id = '${userId}' AND comment_id = '${commentId}';`,
-        {
-          type: QueryTypes.DELETE,
-        }
+      const result = await this.pool.query(
+        `DELETE FROM comments WHERE user_id = '${userId}' AND comment_id = '${commentId}' RETURNING *;`,
+        { type: QueryTypes.DELETE }
       );
+
+      if (!result[1] || result[1].length === 0) {
+        throw new Error("Comment does not exist or you are not the owner");
+      }
+
       return true;
     } catch (error) {
-      throw new Error("Failed to delete comment");
+      throw new Error(`Failed to delete comment: ${error.message}`);
     }
   }
 }

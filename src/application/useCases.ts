@@ -11,8 +11,8 @@ export class VideoManagementUseCases {
     return new VideoManagementUseCases(videoRepository);
   }
 
-  async getListVideos(): Promise<Video[] | Error> {
-    return this.videoRepository.getListVideos();
+  async getPublicVideos(): Promise<Video[] | Error> {
+    return this.videoRepository.getPublicVideos();
   }
 
   async getUserVideos(userId: string): Promise<Video[] | Error> {
@@ -96,13 +96,10 @@ export class VideoManagementUseCases {
       throw new Error("Username cannot contain spaces");
     }
 
-    const isValidUser = await this.videoRepository.loginUser(
-      username,
-      password
-    );
+    const userId = await this.videoRepository.loginUser(username, password);
 
-    if (isValidUser) {
-      return "token aca";
+    if (userId) {
+      return userId;
     } else {
       throw new Error("Invalid username or password");
     }
@@ -113,23 +110,19 @@ export class VideoManagementUseCases {
     title: string,
     description: string,
     credits: string,
-    isPublic: boolean,
-    videoFile: File
-  ): Promise<boolean | Error> {
-    if (!title || !videoFile) {
+    isPublic: boolean
+  ): Promise<string | Error> {
+    if (!title) {
       throw new Error("Title and video file are required");
     }
 
-    await this.videoRepository.uploadVideo(
+    return await this.videoRepository.uploadVideo(
       userId,
       title,
       description,
       credits,
-      isPublic,
-      videoFile
+      isPublic
     );
-
-    return true;
   }
 
   async addCommentToVideo(

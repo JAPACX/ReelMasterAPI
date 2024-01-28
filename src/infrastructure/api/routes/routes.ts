@@ -1,26 +1,30 @@
 import { Router } from "express";
+import { validateToken } from "../middlewares/auth"; // validate if the user is authenticated
 import {
-  getListVideos,
+  getPublicVideos,
   getUserVideos,
   loginUser,
   registerUser,
   deleteUserVideos,
   addCommentToVideo,
   likeOrUnlikeVideo,
+  uploadVideo,
 } from "../controllers/controllers";
 
 export const router = Router();
 
-router.get("/videos", getListVideos);
+router.get("/videos", getPublicVideos);
 
-router.get("/videos/:userId", getUserVideos);
+router.get("/videos/me", validateToken, getUserVideos);
 
 router.post("/login", loginUser);
 
 router.post("/register", registerUser);
 
-router.delete("/videos/:userId/:videoId", deleteUserVideos);
+router.post("videos/upload", validateToken, uploadVideo);
 
-router.post("/videos/:userId/:videoId/comments", addCommentToVideo);
+router.post("/videos/comments/:videoId", validateToken, addCommentToVideo);
 
-router.post("/videos/:userId/:videoId/likes", likeOrUnlikeVideo);
+router.post("/videos/likes/:videoId", validateToken, likeOrUnlikeVideo);
+
+router.delete("/videos/:videoId", validateToken, deleteUserVideos);

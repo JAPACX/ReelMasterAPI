@@ -1,8 +1,7 @@
 import { Video } from "../entities/entities";
 
 export interface VideoManagementInterface {
-  getListVideos(): Promise<Video[] | Error>;
-
+  getPublicVideos(): Promise<Video[] | Error>;
   getUserVideos(userId: string): Promise<Video[] | Error>;
 
   registerUser(
@@ -13,16 +12,15 @@ export interface VideoManagementInterface {
     email: string
   ): Promise<boolean | Error>;
 
-  loginUser(username: string, password: string): Promise<boolean | Error>;
+  loginUser(username: string, password: string): Promise<string | Error>;
 
   uploadVideo(
     userId: string,
     title: string,
     description: string,
     credits: string,
-    isPublic: boolean,
-    videoFile: File
-  ): Promise<Video[] | Error>;
+    isPublic: boolean
+  ): Promise<string | Error>;
 
   addCommentToVideo(
     userId: string,
