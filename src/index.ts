@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { createDatabase } from "./infrastructure/postgres/init";
 import { VideoManagementUseCases } from "./application/useCases";
 import { PostgresRepository } from "./infrastructure/repositories/postgresRepository";
+import { FileRepository } from "./infrastructure/repositories/simulatedServiceCloud";
 import { pool } from "./infrastructure/postgres/config";
 import { router } from "./infrastructure/api/routes/routes";
 
@@ -14,8 +15,12 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 // Dependencies injection with connection pool
-const pr = new PostgresRepository(pool);
-const useCases = VideoManagementUseCases.create(pr);
+const postgresRepositoryInstance = new PostgresRepository(pool);
+const simulatedServiceCloudInstance = new FileRepository();
+const useCases = VideoManagementUseCases.create(
+  postgresRepositoryInstance,
+  simulatedServiceCloudInstance
+);
 
 // Inject useCases
 app.use((req: VideoManagementRequest, res, next) => {

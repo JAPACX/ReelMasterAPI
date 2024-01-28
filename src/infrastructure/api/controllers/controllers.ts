@@ -57,12 +57,16 @@ export const uploadVideo: Handler = async (
   const userId = req.userId["username"];
   const { title, description, credits, isPublic } = req.body;
   try {
+    const file = req["file"];
+    console.log(file);
+
     const urlVideo = await useCases.uploadVideo(
       userId,
       title,
       description,
       credits,
-      isPublic
+      isPublic,
+      file
     );
     res.send({ urlVideo: urlVideo });
   } catch (error) {

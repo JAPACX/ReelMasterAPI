@@ -1,14 +1,24 @@
-import { VideoManagementInterface } from "../domain/interfaces/repository";
+import { VideoManagementInterface } from "../domain/interfaces/videoManagement";
+import { FileInterface } from "../domain/interfaces/files";
 import { Video } from "../domain/entities/entities";
-import validator from "validator";
+import {
+  generateUUID,
+  isAlphanumeric,
+  isValidEmail,
+  isStrongPassword,
+} from "../domain/utils/utils";
 
 export class VideoManagementUseCases {
-  constructor(private videoRepository: VideoManagementInterface) {}
+  constructor(
+    private videoRepository: VideoManagementInterface,
+    private fileRepository: FileInterface
+  ) {}
 
   static create(
-    videoRepository: VideoManagementInterface
+    videoRepository: VideoManagementInterface,
+    fileRepository: FileInterface
   ): VideoManagementUseCases {
-    return new VideoManagementUseCases(videoRepository);
+    return new VideoManagementUseCases(videoRepository, fileRepository);
   }
 
   async getPublicVideos(): Promise<Video[] | Error> {
@@ -51,24 +61,20 @@ export class VideoManagementUseCases {
       throw new Error("Username cannot contain spaces");
     }
 
-    const passwordValidation = validator.isStrongPassword(password, {
-      minLength: 5,
-      minUppercase: 1,
-      minNumbers: 1,
-      minSymbols: 0,
-    });
-
+    const passwordValidation = isStrongPassword(password);
     if (!passwordValidation) {
       throw new Error(
         "Password must be 5 to 15 characters long and contain at least one lowercase letter, one uppercase letter, and one number"
       );
     }
 
-    if (!validator.isAlphanumeric(username)) {
+    const usernameValidation = isAlphanumeric(username);
+    if (!usernameValidation) {
       throw new Error("Username must only contain letters and numbers");
     }
 
-    if (!validator.isEmail(email) || email.length > 30) {
+    const emailValidation = isValidEmail(email);
+    if (!emailValidation) {
       throw new Error("Invalid email format or length exceeds 30 characters");
     }
 
@@ -110,19 +116,60 @@ export class VideoManagementUseCases {
     title: string,
     description: string,
     credits: string,
-    isPublic: boolean
+    isPublic: boolean,
+    file: File
   ): Promise<string | Error> {
-    if (!title) {
+    if (!title || !file) {
       throw new Error("Title and video file are required");
     }
 
-    return await this.videoRepository.uploadVideo(
-      userId,
-      title,
-      description,
-      credits,
-      isPublic
-    );
+    const filename = file.name;
+
+    const fileExtension = filename.split(".").pop()?.toLowerCase();
+    if (
+      !fileExtension ||
+      !["mp4", "mov", "avi", "flv", "wmv", "mpeg", "mpg"].includes(
+        fileExtension
+      )
+    ) {
+      throw new Error("Invalid file extension");
+    }
+
+    const fileSize: number = file.size;
+    const maxFileSize: number = 100 * 1024 * 1024; // 100 MB
+    if (fileSize > maxFileSize) {
+      throw new Error("File size exceeds the maximum allowed");
+    }
+
+    try {
+      const uuid = generateUUID();
+      const localPath = await this.fileRepository.local_save(
+        file,
+        `${uuid}.${fileExtension}`
+      );
+
+      if (!(await this.fileRepository.local_check(localPath))) {
+        throw new Error("File not found after saving");
+      }
+
+      // Upload the file to the server and get the server path if you want to save it
+      await this.fileRepository.server_save(
+        localPath,
+        `${uuid}.${fileExtension}`
+      );
+
+      const result = await this.videoRepository.uploadVideo(
+        userId,
+        title,
+        description,
+        credits,
+        isPublic,
+        localPath
+      );
+      return result;
+    } catch (error) {
+      return new Error("Error uploading video: " + error.message);
+    }
   }
 
   async addCommentToVideo(

@@ -19,7 +19,8 @@ export interface VideoManagementInterface {
     title: string,
     description: string,
     credits: string,
-    isPublic: boolean
+    isPublic: boolean,
+    url: string
   ): Promise<string | Error>;
 
   addCommentToVideo(

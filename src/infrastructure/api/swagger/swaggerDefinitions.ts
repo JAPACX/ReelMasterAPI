@@ -62,6 +62,62 @@
  *             example:
  *               error: Internal Server Error
  */
+/**
+ * @swagger
+ * /videos/upload:
+ *   post:
+ *     summary: Upload a video
+ *     description: |
+ *       POST method to upload a video.
+ *       Requires authentication.
+ *       The request body must include the video title, description, credits, and whether it's public or private.
+ *       The response includes the URL of the uploaded video.
+ *     tags: [Videos]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               credits:
+ *                 type: string
+ *               isPublic:
+ *                 type: boolean
+ *               file:
+ *                 type: file
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             example:
+ *               urlVideo: "https://example.com/videos/video123"
+ *       400:
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Invalid file format or size"
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Invalid token"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal Server Error"
+ */
 
 /**
  * @swagger

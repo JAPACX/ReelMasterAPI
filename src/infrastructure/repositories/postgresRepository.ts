@@ -1,4 +1,4 @@
-import { VideoManagementInterface } from "../../domain/interfaces/repository";
+import { VideoManagementInterface } from "../../domain/interfaces/videoManagement";
 import { Video } from "../../domain/entities/entities";
 import { Sequelize, QueryTypes } from "sequelize";
 import bcrypt from "bcryptjs";
@@ -92,23 +92,19 @@ export class PostgresRepository implements VideoManagementInterface {
     title: string,
     description: string,
     credits: string,
-    isPublic: boolean
+    isPublic: boolean,
+    url: string
   ): Promise<string | Error> {
     try {
-      const result = await this.pool.query(
-        `INSERT INTO videos (user_id, title, description, credits, is_public)
-         VALUES ('${userId}', '${title}', '${description}', '${credits}', '${isPublic}') RETURNING video_id;`,
+      await this.pool.query(
+        `INSERT INTO videos (user_id, title, description, credits, is_public, url)
+         VALUES ('${userId}', '${title}', '${description}', '${credits}', '${isPublic}', '${url}');`,
         { type: QueryTypes.INSERT }
       );
 
-      if (result.length === 2 && result[0]["length"] === 1) {
-        const videoId = result[0][0]["video_id"];
-        return videoId;
-      } else {
-        throw new Error("Failed to upload video");
-      }
+      return `Local Path where the video was saved: ${url}`;
     } catch (error) {
-      throw new Error(`Failed to upload video: ${error.message}`);
+      throw new Error(`Failed to save info to database: ${error.message}`);
     }
   }
 
