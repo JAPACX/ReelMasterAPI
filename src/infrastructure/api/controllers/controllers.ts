@@ -78,15 +78,9 @@ export const registerUser: Handler = async (
 
   const { name, last_name, username, password, email } = req.body;
   try {
-    const success = useCases.registerUser(
-      name,
-      last_name,
-      username,
-      password,
-      email
-    );
+    await useCases.registerUser(name, last_name, username, password, email);
 
-    res.send({ success: success });
+    res.send({ success: true });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }

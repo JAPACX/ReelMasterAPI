@@ -135,7 +135,7 @@ export class PostgresRepository implements VideoManagementInterface {
   ): Promise<boolean | Error> {
     try {
       await this.pool.query(
-        `INSERT INTO likes(user_id, video_id) 
+        `INSERT INTO likes (user_id, video_id) 
        VALUES ('${userId}', '${videoId}');`,
         { type: QueryTypes.INSERT }
       );
