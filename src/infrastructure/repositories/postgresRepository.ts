@@ -96,13 +96,13 @@ export class PostgresRepository implements VideoManagementInterface {
   ): Promise<string | Error> {
     try {
       const result = await this.pool.query(
-        `INSERT INTO videos (user_id, title, description, credits, is_public, url)
+        `INSERT INTO videos (user_id, title, description, credits, is_public)
          VALUES ('${userId}', '${title}', '${description}', '${credits}', '${isPublic}') RETURNING video_id;`,
         { type: QueryTypes.INSERT }
       );
 
-      if (result) {
-        const videoId = result[0]["video_id"];
+      if (result.length === 2 && result[0]["length"] === 1) {
+        const videoId = result[0][0]["video_id"];
         return videoId;
       } else {
         throw new Error("Failed to upload video");
@@ -163,7 +163,7 @@ export class PostgresRepository implements VideoManagementInterface {
         { type: QueryTypes.DELETE }
       );
 
-      if (!result[1] || result[1].length === 0) {
+      if (!result["length"]) {
         throw new Error("Video does not exist or you are not the owner");
       }
 
@@ -183,7 +183,7 @@ export class PostgresRepository implements VideoManagementInterface {
         { type: QueryTypes.DELETE }
       );
 
-      if (!result[1] || result[1].length === 0) {
+      if (!result["length"]) {
         throw new Error("Comment does not exist or you are not the owner");
       }
 

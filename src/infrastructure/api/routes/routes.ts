@@ -9,6 +9,7 @@ import {
   addCommentToVideo,
   likeOrUnlikeVideo,
   uploadVideo,
+  deleteComment,
 } from "../controllers/controllers";
 
 export const router = Router();
@@ -21,10 +22,12 @@ router.post("/login", loginUser);
 
 router.post("/register", registerUser);
 
-router.post("videos/upload", validateToken, uploadVideo);
+router.post("/videos/upload", validateToken, uploadVideo);
 
 router.post("/videos/comments/:videoId", validateToken, addCommentToVideo);
 
 router.post("/videos/likes/:videoId", validateToken, likeOrUnlikeVideo);
 
 router.delete("/videos/:videoId", validateToken, deleteUserVideos);
+
+router.delete("/videos/comments/:commentId", validateToken, deleteComment);

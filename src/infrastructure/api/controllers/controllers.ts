@@ -57,18 +57,14 @@ export const uploadVideo: Handler = async (
   const userId = req.userId["username"];
   const { title, description, credits, isPublic } = req.body;
   try {
-    const result = await useCases.uploadVideo(
+    const urlVideo = await useCases.uploadVideo(
       userId,
       title,
       description,
       credits,
       isPublic
     );
-    if (result instanceof Error) {
-      res.status(500).send({ error: result.message });
-    } else {
-      res.send({ success: true });
-    }
+    res.send({ urlVideo: urlVideo });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -82,18 +78,15 @@ export const registerUser: Handler = async (
 
   const { name, last_name, username, password, email } = req.body;
   try {
-    const result = await useCases.registerUser(
+    const success = useCases.registerUser(
       name,
       last_name,
       username,
       password,
       email
     );
-    if (result instanceof Error) {
-      res.status(500).send({ error: result.message });
-    } else {
-      res.send({ success: true });
-    }
+
+    res.send({ success: success });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -142,6 +135,21 @@ export const likeOrUnlikeVideo: Handler = async (
 
   try {
     const success = await useCases.likeOrUnlikeVideo(userId, videoId);
+    res.send({ success });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+export const deleteComment: Handler = async (
+  req: VideoManagementRequest,
+  res
+) => {
+  const useCases = req.useCases;
+  const { commentId } = req.params;
+  const userId = req.userId["username"];
+  try {
+    const success = await useCases.deleteComment(userId, commentId);
     res.send({ success });
   } catch (error) {
     res.status(500).send({ error: error.message });
