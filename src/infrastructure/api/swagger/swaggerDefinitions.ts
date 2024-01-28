@@ -20,6 +20,9 @@
  * /videos:
  *   get:
  *     summary: Get all videos
+ *     description: |
+ *       GET method to retrieve a list of all public videos from the API. No authentication required.
+ *       Response includes videos, associated likes, and comments. Pagination implemented using a cursor.
  *     tags: [Videos]
  *     responses:
  *       200:
@@ -37,6 +40,11 @@
  * /videos/me:
  *   get:
  *     summary: Get my videos
+ *     description: |
+ *       GET method to retrieve a list of videos owned by the authenticated user.
+ *       Only the user's own videos are included in the response.
+ *       If a video is marked as private, it won't appear in the public list, but the owner can still view it.
+ *       The response includes videos, along with information on likes and comments. Pagination is implemented using a cursor.
  *     tags: [Videos]
  *     security:
  *       - bearerAuth: []
@@ -60,6 +68,12 @@
  * /login:
  *   post:
  *     summary: User login
+ *     description: |
+ *       POST method to login.
+ *       The system validates the user's existence, correct password, and other conditions.
+ *       - If the user does not exist, a corresponding error is returned.
+ *       - If the password is incorrect, a corresponding error is returned.
+ *       - If the login is successful, the response includes an Authorization header with a JWT token.
  *     tags: [User]
  *     requestBody:
  *       required: true
@@ -98,6 +112,16 @@
  * /register:
  *   post:
  *     summary: Register a new user
+ *     description: |
+ *       POST method to register a new user.
+ *       The request body must include the user's information such as name, last name, username, password, and email.
+ *       The system performs type validation on each field:
+ *       - The fields (name, last name) must have a minimum length of three characters.
+ *       - The email must have a valid format.
+ *       - The password must include at least one uppercase letter, one digit, and have a length between 5 and 15 characters.
+ *       - The username can only contain alphanumeric characters.
+ *       - The email cannot exceed 30 characters.
+ *       If the user is successfully registered, boolean true is returned.
  *     tags: [User]
  *     requestBody:
  *       required: true
@@ -136,6 +160,11 @@
  * /videos/{videoId}:
  *   delete:
  *     summary: Delete a user's video
+ *     description: |
+ *       DELETE method to remove a user's own video.
+ *       Providing the videoId is required.
+ *       Only the owner of the video can delete it.
+ *       If a non-owner tries to delete the video, the system will deny the request.
  *     tags: [Videos]
  *     parameters:
  *       - in: path
@@ -165,6 +194,11 @@
  * /videos/comments/{videoId}:
  *   post:
  *     summary: Add a comment to a video
+ *     description: |
+ *       POST method to add a comment to a video.
+ *       Providing the videoId is required.
+ *       The request body should include the content of the comment.
+ *       Any authenticated user can add a comment to any video.
  *     tags: [Videos]
  *     parameters:
  *       - in: path
@@ -203,6 +237,12 @@
  * /videos/likes/{videoId}:
  *   post:
  *     summary: Like or dislike a video
+ *     description: |
+ *       POST method to like or dislike a video.
+ *       Providing the videoId is required.
+ *       If the same user likes the same video again, the system will toggle the like to dislike.
+ *       Likes are not deleted; users can like or dislike a video.
+ *       Any authenticated user can give a like to any video.
  *     tags: [Videos]
  *     parameters:
  *       - in: path
@@ -232,6 +272,11 @@
  * /videos/comments/{commentId}:
  *   delete:
  *     summary: Delete a user's comment on a video
+ *     description: |
+ *       DELETE method to remove a comment on a video.
+ *       Only the owner of the video can delete their own comments.
+ *       Authentication and providing the commentId are required.
+ *       The system ensures that only the user who submitted the comment can delete it.
  *     tags: [Videos]
  *     parameters:
  *       - in: path
