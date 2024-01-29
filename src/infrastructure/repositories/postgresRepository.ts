@@ -1,5 +1,5 @@
 import { VideoManagementInterface } from "../../domain/interfaces/videoManagement";
-import { Video } from "../../domain/entities/entities";
+import { Video, Like, Comment } from "../../domain/entities/entities";
 import { Sequelize, QueryTypes } from "sequelize";
 import bcrypt from "bcryptjs";
 
@@ -186,6 +186,28 @@ export class PostgresRepository implements VideoManagementInterface {
       return true;
     } catch (error) {
       throw new Error(`Failed to delete comment: ${error.message}`);
+    }
+  }
+
+  async getLikesByVideoId(videoId: string): Promise<Like[] | Error> {
+    try {
+      return await this.pool.query(
+        `SELECT * FROM likes WHERE video_id = '${videoId}' WHERE is_liked = true;`,
+        { type: QueryTypes.SELECT }
+      );
+    } catch (error) {
+      throw new Error(`Failed to get likes: ${error.message}`);
+    }
+  }
+
+  async getCommentsByVideoId(videoId: string): Promise<Comment[] | Error> {
+    try {
+      return await this.pool.query(
+        `SELECT * FROM comments WHERE video_id = '${videoId}';`,
+        { type: QueryTypes.SELECT }
+      );
+    } catch (error) {
+      throw new Error(`Failed to get comments: ${error.message}`);
     }
   }
 }

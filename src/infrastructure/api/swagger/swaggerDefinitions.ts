@@ -356,3 +356,81 @@
  *             example:
  *               error: Internal Server Error
  */
+
+/**
+ * @swagger
+ * /videos/getLikes/{videoId}:
+ *   get:
+ *     summary: Get likes for a video
+ *     description: |
+ *       GET method to retrieve likes for a specific video.
+ *       Requires authentication.
+ *       Providing the videoId is required.
+ *     tags: [Videos]
+ *     parameters:
+ *       - in: path
+ *         name: videoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             example:
+ *               likes: []
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Invalid token"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal Server Error"
+ */
+
+/**
+ * @swagger
+ * /videos/comments/{videoId}:
+ *   get:
+ *     summary: Get comments for a video
+ *     description: |
+ *       GET method to retrieve comments for a specific video.
+ *       Requires authentication.
+ *       Providing the videoId is required.
+ *     tags: [Videos]
+ *     parameters:
+ *       - in: path
+ *         name: videoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             example:
+ *               comments: []
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Invalid token"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal Server Error"
+ */

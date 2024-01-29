@@ -1,4 +1,4 @@
-import { Video } from "../entities/entities";
+import { Video, Like, Comment } from "../entities/entities";
 
 export interface VideoManagementInterface {
   getPublicVideos(): Promise<Video[] | Error>;
@@ -28,6 +28,10 @@ export interface VideoManagementInterface {
     videoId: string,
     content: string
   ): Promise<boolean | Error>;
+
+  getLikesByVideoId(videoId: string): Promise<Like[] | Error>;
+
+  getCommentsByVideoId(videoId: string): Promise<Comment[] | Error>;
 
   likeOrUnlikeVideo(userId: string, videoId: string): Promise<boolean | Error>;
 

@@ -1,6 +1,11 @@
 import { VideoManagementInterface } from "../domain/interfaces/videoManagement";
 import { FileInterface } from "../domain/interfaces/files";
-import { Video, VideoFileInterface } from "../domain/entities/entities";
+import {
+  Video,
+  Like,
+  Comment,
+  VideoFileInterface,
+} from "../domain/entities/entities";
 import {
   generateUUID,
   isAlphanumeric,
@@ -226,5 +231,21 @@ export class VideoManagementUseCases {
 
     await this.videoRepository.deleteComment(userId, commentId);
     return true;
+  }
+
+  async getLikesByVideoId(videoId: string): Promise<Like[] | Error> {
+    if (!videoId) {
+      throw new Error("Video ID is required");
+    }
+
+    return this.videoRepository.getLikesByVideoId(videoId);
+  }
+
+  async getCommentsByVideoId(videoId: string): Promise<Comment[] | Error> {
+    if (!videoId) {
+      throw new Error("Video ID is required");
+    }
+
+    return this.videoRepository.getCommentsByVideoId(videoId);
   }
 }

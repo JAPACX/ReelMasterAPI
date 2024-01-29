@@ -165,3 +165,26 @@ export const deleteComment: Handler = async (
     res.status(500).send({ error: error.message });
   }
 };
+
+export const getLikesByVideoId = async (req: VideoManagementRequest, res) => {
+  const useCases = req.useCases;
+  const { videoId } = req.params;
+  try {
+    res.send(await useCases.getLikesByVideoId(videoId));
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+export const getCommentsByVideoId = async (
+  req: VideoManagementRequest,
+  res
+) => {
+  const useCases = req.useCases;
+  const { videoId } = req.params;
+  try {
+    res.send(await useCases.getCommentsByVideoId(videoId));
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};

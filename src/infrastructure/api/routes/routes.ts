@@ -10,6 +10,8 @@ import {
   likeOrUnlikeVideo,
   uploadVideo,
   deleteComment,
+  getLikesByVideoId,
+  getCommentsByVideoId,
 } from "../controllers/controllers";
 
 export const router = Router();
@@ -17,6 +19,10 @@ export const router = Router();
 router.get("/videos", getPublicVideos);
 
 router.get("/videos/me", validateToken, getUserVideos);
+
+router.get("/videos/getLikes/:videoId", validateToken, getLikesByVideoId);
+
+router.get("/videos/comments/:videoId", validateToken, getCommentsByVideoId);
 
 router.post("/login", loginUser);
 
