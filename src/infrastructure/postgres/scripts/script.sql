@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS videos (
     video_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
+    url VARCHAR(255) NOT NULL,
     description TEXT,
     credits VARCHAR(100),
     publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

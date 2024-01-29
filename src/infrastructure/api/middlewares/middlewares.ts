@@ -1,6 +1,7 @@
 import { Express } from "express";
 import bodyParser from "body-parser";
-import multer from "multer";
+
+import fileUpload from "express-fileupload";
 
 import swaggerUI from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
@@ -15,14 +16,9 @@ export const setupMiddlewares = (app: Express) => {
     })
   );
 
-  // Multer setup
-  const storage = multer.memoryStorage(); // Store the file in memory
-  const upload = multer({ storage: storage });
+  app.use(fileUpload());
 
   // Swagger setup
   const specs = swaggerJsDoc(options);
   app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs));
-
-  // Multer middleware
-  app.use(upload.single("file"));
 };

@@ -1,6 +1,7 @@
 import { VideoManagementUseCases } from "../../../application/useCases";
 import { Request, Handler } from "express";
 import { generateToken } from "../middlewares/auth";
+import { VideoFileInterface } from "../../../domain/entities/entities";
 export interface VideoManagementRequest extends Request {
   useCases: VideoManagementUseCases;
   userId?: object;
@@ -56,19 +57,30 @@ export const uploadVideo: Handler = async (
   const useCases = req.useCases;
   const userId = req.userId["username"];
   const { title, description, credits, isPublic } = req.body;
-  try {
-    const file = req["file"];
-    console.log(file);
 
-    const urlVideo = await useCases.uploadVideo(
+  try {
+    const files: VideoFileInterface = req["files"];
+
+    if (!files || Object.keys(files).length !== 1) {
+      return res.status(400).send("Number of files should be 1");
+    }
+
+    const videoCode: VideoFileInterface = Object.values(files)[0];
+
+    if (!videoCode || videoCode instanceof Array) {
+      return res.status(400).send("Invalid video file");
+    }
+
+    const result = await useCases.uploadVideo(
       userId,
       title,
       description,
       credits,
       isPublic,
-      file
+      videoCode
     );
-    res.send({ urlVideo: urlVideo });
+
+    return res.send({ result: result });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }

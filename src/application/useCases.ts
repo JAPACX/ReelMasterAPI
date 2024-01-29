@@ -1,6 +1,6 @@
 import { VideoManagementInterface } from "../domain/interfaces/videoManagement";
 import { FileInterface } from "../domain/interfaces/files";
-import { Video } from "../domain/entities/entities";
+import { Video, VideoFileInterface } from "../domain/entities/entities";
 import {
   generateUUID,
   isAlphanumeric,
@@ -117,7 +117,7 @@ export class VideoManagementUseCases {
     description: string,
     credits: string,
     isPublic: boolean,
-    file: File
+    file: VideoFileInterface
   ): Promise<string | Error> {
     if (!title || !file) {
       throw new Error("Title and video file are required");
@@ -135,7 +135,7 @@ export class VideoManagementUseCases {
       throw new Error("Invalid file extension");
     }
 
-    const fileSize: number = file.size;
+    const fileSize: number = parseInt(file.size);
     const maxFileSize: number = 100 * 1024 * 1024; // 100 MB
     if (fileSize > maxFileSize) {
       throw new Error("File size exceeds the maximum allowed");
@@ -143,19 +143,16 @@ export class VideoManagementUseCases {
 
     try {
       const uuid = generateUUID();
+
       const localPath = await this.fileRepository.local_save(
         file,
-        `${uuid}.${fileExtension}`
+        uuid + "." + fileExtension
       );
 
-      if (!(await this.fileRepository.local_check(localPath))) {
-        throw new Error("File not found after saving");
-      }
-
-      // Upload the file to the server and get the server path if you want to save it
+      // example if you want to upload to server, this function is void and returns nothing
       await this.fileRepository.server_save(
         localPath,
-        `${uuid}.${fileExtension}`
+        uuid + "." + fileExtension
       );
 
       const result = await this.videoRepository.uploadVideo(

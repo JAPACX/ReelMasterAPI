@@ -1,40 +1,31 @@
 import { FileInterface } from "../../domain/interfaces/files";
-import * as fs from "fs";
 import * as path from "path";
+import { VideoFileInterface } from "../../domain/entities/entities";
 
 export class FileRepository implements FileInterface {
-  async local_save(file: File, filename: string): Promise<string> {
-    const uploadFolder = path.join(__dirname, "../../uploads");
+  async local_save(
+    file: VideoFileInterface,
+    filename: string
+  ): Promise<string> {
+    const destinationPath = path.join(
+      __dirname,
+      "../../cloudStorage",
+      filename
+    );
 
-    if (!fs.existsSync(uploadFolder)) {
-      fs.mkdirSync(uploadFolder, { recursive: true });
-    }
-
-    const filePath = path.join(uploadFolder, filename);
-    const writeStream = fs.createWriteStream(filePath);
-    const readStream = fs.createReadStream(file["path"]);
-
-    await new Promise((resolve, reject) => {
-      readStream.pipe(writeStream);
-      readStream.on("end", resolve);
-      readStream.on("error", reject);
+    await file.mv(destinationPath, (error) => {
+      if (error) {
+        throw new Error("Failed to upload file");
+      }
     });
 
-    return filePath;
-  }
-
-  async local_check(filePath: string): Promise<boolean> {
-    return fs.existsSync(filePath);
+    return destinationPath;
   }
 
   async server_save(_localPath: string, _serverPath: string): Promise<boolean> {
     // Upload the file to the server logic
+    // eslint-disable-next-line no-console
 
-    return true;
-  }
-
-  async server_delete(_serverPath: string): Promise<boolean> {
-    // Delete the file from the server logic
     return true;
   }
 }

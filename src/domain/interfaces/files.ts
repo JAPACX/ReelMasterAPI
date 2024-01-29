@@ -1,9 +1,6 @@
+import { VideoFileInterface } from "../entities/entities";
+
 export interface FileInterface {
-  local_save(file: File, filename: string): Promise<string>;
-
-  local_check(filePath: string): Promise<boolean>;
-
+  local_save(file: VideoFileInterface, filename: string): Promise<string>;
   server_save(localPath: string, serverPath: string): Promise<boolean>;
-
-  server_delete(serverPath: string): Promise<boolean>;
 }

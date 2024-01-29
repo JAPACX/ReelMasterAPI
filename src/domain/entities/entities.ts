@@ -43,3 +43,10 @@ export class Like {
     public createdAt?: Date
   ) {}
 }
+
+export interface VideoFileInterface {
+  name: string;
+  data: string;
+  size: string;
+  mv: (a, b) => void;
+}

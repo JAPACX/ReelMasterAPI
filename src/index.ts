@@ -9,6 +9,7 @@ import { router } from "./infrastructure/api/routes/routes";
 
 import { VideoManagementRequest } from "./infrastructure/api/controllers/controllers";
 import { setupMiddlewares } from "./infrastructure/api/middlewares/middlewares";
+import path from "path";
 
 dotenv.config();
 const app: Express = express();
@@ -28,6 +29,8 @@ app.use((req: VideoManagementRequest, res, next) => {
   next();
 });
 
+// Static files
+app.use(express.static(path.join(__dirname, "public")));
 // Middlewares
 setupMiddlewares(app);
 // Routes
